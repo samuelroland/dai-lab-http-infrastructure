@@ -1,3 +1,3 @@
 FROM nginx
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY index.html 
+COPY index.html /var/www/froom

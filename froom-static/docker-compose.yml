@@ -1,0 +1,6 @@
+services:
+  froom-static:
+    build: .
+    ports:
+    - "80:80"
+    

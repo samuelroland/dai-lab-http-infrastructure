@@ -6,12 +6,11 @@ import io.javalin.Javalin;
 public class Main {
 	static final String HELLO_MESSAGE = "Welcome on the Froom API. I hope you are Hapi ?";
 	static final int PORT = 7000;
-	static Javalin server;
+	static Javalin app;
 
 	public static void main(String[] args) {
-		server = setupApp().start(PORT);
-
-		server.after(ctx -> System.out.println("Quitting server..."));
+		app = setupApp().start(PORT);
+		app.before(ctx -> System.out.println("New request " + ctx.method() + " on " + ctx.path()));
 	}
 
 	// Separated method to easily test the server
@@ -26,12 +25,11 @@ public class Main {
 
 		CommentsController commentsController = new CommentsController();
 
-		app.get("/comments/{id}", commentsController::getOne);
-		app.get("/comments", commentsController::getAll);
-		app.post("/comments", commentsController::create);
-		app.delete("/comments/{id}", commentsController::delete);
-		app.put("/comments/{id}", commentsController::update);
-
+		app.get("/api/comments/{id}", commentsController::getOne);
+		app.get("/api/comments", commentsController::getAll);
+		app.post("/api/comments", commentsController::create);
+		app.delete("/api/comments/{id}", commentsController::delete);
+		app.put("/api/comments/{id}", commentsController::update);
 
 		return app;
 	}

@@ -9,6 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AppTest {
 
+	AppTest() {
+		super();
+	}
+
 	Javalin app = Main.setupApp();
 
 	@Before

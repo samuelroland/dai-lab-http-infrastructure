@@ -16,14 +16,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ch.heig.models.*;
 
-public class UsersTest {
+public class CommentsTests {
 
 	Javalin app = Main.setupApp();
 
-	private User parseAsUser(String text) {
+	// Easy parsing of any JSON string into a object of the given class
+	// It uses Jackson
+	private Object parseAs(String text, Class<Object> classRef) {
 		ObjectMapper om = new ObjectMapper();
 		try {
-			return om.readValue(text, User.class);
+			return om.readValue(text, classRef);
 		} catch (Exception e) {
 			return null;
 		}
@@ -38,13 +40,4 @@ public class UsersTest {
 	public void tearDown() {
 		app.stop();
 	}
-
-	// @Test
-	// public void get_all_users_returns_an_empty_list_at_start() {
-	// 	JavalinTest.test(app, (server, client) -> {
-	// 		var res = client.get("/users");
-	// 		assertEquals(200, res.code());
-	// 		assertEquals("[]", res.body().string());
-	// 	});
-	// }
 }

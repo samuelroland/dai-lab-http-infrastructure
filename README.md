@@ -84,3 +84,13 @@ sudo docker compose build
  => => writing image sha256:40858cee24286c1609221c9426dc64fc03ebf11795f20f52708008818c98f125                                                                                                0.0s
  => => naming to docker.io/library/dai-lab-http-infrastructure-froom-static 
 ```
+
+## Javalin API
+
+```sh
+mvn package
+```
+
+```sh
+java -jar target/server-1.0-SNAPSHOT.jar
+```

@@ -94,3 +94,29 @@ mvn package
 ```sh
 java -jar target/server-1.0-SNAPSHOT.jar
 ```
+
+## Step 3 - HTTP API server
+
+We have a GET route on / (the inital arriving page) to send a Hello message when arriving on this home page.
+```
+	app.get("/", ctx -> ctx.result(HELLO_MESSAGE));
+
+```
+and then the routes for all the comments with the CRUD operations : Create, Read, Update, Delete.
+
+```
+	app.get("/comments/{id}", commentsController::getOne);
+	app.get("/comments", commentsController::getAll);
+	app.post("/comments", commentsController::create);
+	app.delete("/comments/{id}", commentsController::delete);
+	app.put("/comments/{id}", commentsController::update);
+	
+```
+
+We also tested our implementation with Bruno although we have all the tests necessary coded directecly into the `CommentsTests.java` file.
+
+So the test we made is a POST request which creates a new comment :
+![bruno test image 1](/imgs/bruno1.png)
+
+and then the content itself with the answer from the server :
+![bruno test image 2](/imgs/bruno2.png)

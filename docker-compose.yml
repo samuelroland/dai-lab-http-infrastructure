@@ -5,3 +5,8 @@ services:
     ports:
     - "80:80"
     
+  froom-api:
+    build:
+      context: froom
+    ports:
+    - "7000:7000"

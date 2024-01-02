@@ -1,0 +1,7 @@
+services:
+  froom-static:
+    build: 
+      context: froom-static
+    ports:
+    - "80:80"
+    

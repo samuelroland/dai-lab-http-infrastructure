@@ -51,9 +51,23 @@ public class CommentsTests {
 			assertEquals(200, res.code());
 			assertEquals("L'eau, dans 20-30 ans y'en aura plus", givenComment.content);
 			assertEquals(4, givenComment.id);
-			assertEquals(null, givenComment.parent_id);
+			assertEquals(1, givenComment.parent_id);
+		});
+	}
 
+	@Test
+	public void getOneFailsOnNonExistantComment() {
+		JavalinTest.test(app, (server, client) -> {
+			var res = client.get("/comments/420000");
+			assertEquals(404, res.code());
+		});
+	}
 
+	@Test
+	public void getOneFailsWithNonValidId() {
+		JavalinTest.test(app, (server, client) -> {
+			var res = client.get("/comments/bonjour");
+			assertEquals(404, res.code());
 		});
 	}
 
@@ -62,17 +76,20 @@ public class CommentsTests {
 		JavalinTest.test(app, (server, client) -> {
 			var res = client.get("/comments");
 			assertEquals(200, res.code());
-
 		});
 	}
 
 	@Test
 	public void postCreateComment() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.post("/comments/10");
-			assertEquals(200, res.code());
-			// TODO créer un commentaire id = 10 avec un contenu et check ici
-			// si le contenu est bien correct avec quoi l'ajout est donc fonctionnel
+			String body = "{\"content\": \"Hello this is a test\", \"parent_id\": null}";
+			var res = client.post("/comments", body);
+			Comment createdComment = parseAs(res.body().string());
+			assertEquals(201, res.code());
+			assertEquals("Hello this is a test", createdComment.content);
+			assertEquals(null, createdComment.parent_id);
+			assertNotEquals(null, createdComment.id);
+			assertNotEquals(null, createdComment.date);
 
 		});
 	}
@@ -81,17 +98,31 @@ public class CommentsTests {
 	public void deleteComment() {
 		JavalinTest.test(app, (server, client) -> {
 			var res = client.delete("/comments/5");
-			assertEquals(200, res.code());
-			// TODO check si le contenu du commentaire supp n'est plus dispo ?
+			assertEquals(204, res.code());
+			var res2 = client.get("/comments/5");
+			assertEquals(404, res2.code());
 		});
 	}
 
 	@Test
 	public void updateComment() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.put("/comments/6");
+			String body = "{\"content\": \"Hello this is an other test\", \"parent_id\": 3}";
+			var res = client.put("/comments/4", body);
 			assertEquals(200, res.code());
-			// TODO check si le contenu du commentaire a bien été modifié ?
+			Comment updatedComment = parseAs(res.body().string());
+			assertEquals("Hello this is an other test", updatedComment.content);
+			assertEquals(3, updatedComment.parent_id);
+			assertEquals(4, updatedComment.id);
+			assertNotEquals(null, updatedComment.date);
+		});
+	}
+
+	@Test
+	public void updateNonExistantCommentFails() {
+		JavalinTest.test(app, (server, client) -> {
+			var res = client.put("/comments/420000");
+			assertEquals(404, res.code());
 		});
 	}
 }

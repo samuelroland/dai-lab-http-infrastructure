@@ -28,7 +28,7 @@ public class Main {
 
 		app.get("/comments/{id}", commentsController::getOne);
 		app.get("/comments", commentsController::getAll);
-		app.post("/comments", commentsController::post);
+		app.post("/comments", commentsController::create);
 		app.delete("/comments/{id}", commentsController::delete);
 		app.put("/comments/{id}", commentsController::update);
 

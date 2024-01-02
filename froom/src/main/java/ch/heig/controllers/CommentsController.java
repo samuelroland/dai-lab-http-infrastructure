@@ -21,11 +21,11 @@ public class CommentsController {
     }
 
     private Integer checkIfCommentExist(String possibleID) {
-         try {
+        try {
             int id = Integer.parseInt(possibleID);
 
             return comments.containsKey(id) ? id : null;
-           
+
         } catch (NumberFormatException e) {
             return null;
         }
@@ -34,7 +34,7 @@ public class CommentsController {
     public void getOne(Context ctx) {
         Integer id = checkIfCommentExist(ctx.pathParam("id"));
 
-        if(id != null) {
+        if (id != null) {
             ctx.json(comments.get(id));
         } else {
             ctx.status(404);
@@ -42,7 +42,7 @@ public class CommentsController {
     }
 
     public void getAll(Context ctx) {
-        ctx.json(comments);
+        ctx.json(comments.elements());
     }
 
     public void create(Context ctx) {
@@ -57,10 +57,13 @@ public class CommentsController {
     public void update(Context ctx) {
         Integer id = checkIfCommentExist(ctx.pathParam("id"));
 
-         if(id != null) {
+        if (id != null) {
+            Comment modifiedComment = ctx.bodyAsClass(Comment.class);
+            Comment existingComment = comments.get(id);
+            existingComment.content = modifiedComment.content;
+            existingComment.parent_id = modifiedComment.parent_id;
+            comments.put(id, existingComment);
             ctx.json(comments.get(id));
-            Comment comment = ctx.bodyAsClass(Comment.class);
-            comments.put(id, comment);
         } else {
             ctx.status(404);
         }
@@ -68,9 +71,14 @@ public class CommentsController {
     }
 
     public void delete(Context ctx) {
-        int id = Integer.parseInt(ctx.pathParam("id"));
-        comments.remove(id);
-        ctx.status(204);
+        Integer id = checkIfCommentExist(ctx.pathParam("id"));
+
+        if (id != null) {
+            comments.remove(id);
+            ctx.status(204);
+        } else {
+            ctx.status(404);
+        }
     }
 
 }

@@ -8,13 +8,10 @@ import org.junit.Before;
 import org.junit.After;
 
 import io.javalin.Javalin;
-import io.javalin.testtools.HttpClient;
 import io.javalin.testtools.JavalinTest;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.time.LocalDate;
 
 import ch.heig.models.*;
 
@@ -28,6 +25,15 @@ public class CommentsTests {
 		ObjectMapper om = new ObjectMapper();
 		try {
 			return om.readValue(text, Comment.class);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private Comment[] parseAsArray(String text) {
+		ObjectMapper om = new ObjectMapper();
+		try {
+			return om.readValue(text, Comment[].class);
 		} catch (Exception e) {
 			return null;
 		}
@@ -75,7 +81,24 @@ public class CommentsTests {
 	public void getAllReturnsAllComment() {
 		JavalinTest.test(app, (server, client) -> {
 			var res = client.get("/comments");
+			Comment[] comments = parseAsArray(res.body().string());
 			assertEquals(200, res.code());
+			assertEquals(4, comments.length);
+			assertEquals("bonjour c'est un test", comments[0].content);
+		});
+	}
+
+	@Test
+	public void getAllWorksWithoutElements() {
+		JavalinTest.test(app, (server, client) -> {
+			client.delete("/comments/1");
+			client.delete("/comments/2");
+			client.delete("/comments/3");
+			client.delete("/comments/4");
+
+			var res = client.get("/comments/");
+			assertEquals(200, res.code());
+			assertEquals("[]", res.body().string());
 		});
 	}
 
@@ -97,9 +120,9 @@ public class CommentsTests {
 	@Test
 	public void deleteComment() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.delete("/comments/5");
+			var res = client.delete("/comments/3");
 			assertEquals(204, res.code());
-			var res2 = client.get("/comments/5");
+			var res2 = client.get("/comments/3");
 			assertEquals(404, res2.code());
 		});
 	}
@@ -122,6 +145,14 @@ public class CommentsTests {
 	public void updateNonExistantCommentFails() {
 		JavalinTest.test(app, (server, client) -> {
 			var res = client.put("/comments/420000");
+			assertEquals(404, res.code());
+		});
+	}
+
+	@Test
+	public void deleteNonExistantCommentFails() {
+		JavalinTest.test(app, (server, client) -> {
+			var res = client.delete("/comments/420000");
 			assertEquals(404, res.code());
 		});
 	}

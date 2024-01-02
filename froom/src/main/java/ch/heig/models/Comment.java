@@ -1,7 +1,5 @@
 package ch.heig.models;
 
-import java.time.LocalDate;
-
 public class Comment {
 	// Attributes are public because Jackson (the JSON parser) needs to access it
 	public Integer id;

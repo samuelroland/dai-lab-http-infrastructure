@@ -2,11 +2,20 @@ services:
   froom-static:
     build: 
       context: froom-static
-    ports:
-    - "80:80"
-    
+    labels:
+      - "traefik.http.routers.froom-static.rule=Host(`localhost`) && !PathPrefix(`/api`)"
+
   froom-api:
     build:
       context: froom
+    labels:
+    - "traefik.http.routers.froom-api.rule=Host(`localhost`) && PathPrefix(`/api`)"
+
+  traefik:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
     ports:
-    - "7000:7000"
+      - "8000:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

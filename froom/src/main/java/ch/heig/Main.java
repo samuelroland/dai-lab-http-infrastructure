@@ -1,5 +1,6 @@
 package ch.heig;
 
+import ch.heig.controllers.CommentsController;
 import io.javalin.Javalin;
 
 public class Main {
@@ -16,11 +17,21 @@ public class Main {
 	// Separated method to easily test the server
 	public static Javalin setupApp() {
 		// Create the Javalin server and start of given port
-		Javalin app = null;// TODO
+		Javalin app = Javalin.create();
 
 		// Define a GET route on / to send the HELLO_MESSAGE
+		app.get("/", ctx -> ctx.result(HELLO_MESSAGE));
 
 		// Defines routes for comments
+
+		CommentsController commentsController = new CommentsController();
+
+		app.get("/comments/{id}", commentsController::getOne);
+		app.get("/comments", commentsController::getAll);
+		app.post("/comments", commentsController::post);
+		app.delete("/comments/{id}", commentsController::delete);
+		app.put("/comments/{id}", commentsController::update);
+
 
 		return app;
 	}

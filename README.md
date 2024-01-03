@@ -97,12 +97,12 @@ java -jar target/server-1.0-SNAPSHOT.jar
 
 ## Step 3 - HTTP API server
 
-We have a GET route on / (the inital arriving page) to send a Hello message when arriving on this home page.
+We have a GET route on / (the home page) to send a Hello message when arriving on this home page.
 ```
 	app.get("/", ctx -> ctx.result(HELLO_MESSAGE));
 
 ```
-and then the routes for all the comments with the CRUD operations : Create, Read, Update, Delete.
+We implemented all the CRUD operations with the folowing routes :
 
 ```
 	app.get("/comments/{id}", commentsController::getOne);
@@ -113,10 +113,22 @@ and then the routes for all the comments with the CRUD operations : Create, Read
 	
 ```
 
-We also tested our implementation with Bruno although we have all the tests necessary coded directecly into the `CommentsTests.java` file.
+We also tested our implementation with Bruno although we have all the  necessary tests coded directecly into the `CommentsTests.java` file.
 
 So the test we made is a POST request which creates a new comment :
 ![bruno test image 1](/imgs/bruno1.png)
 
 and then the content itself with the answer from the server :
 ![bruno test image 2](/imgs/bruno2.png)
+
+And we also created the Dockerfile for the API server.
+
+```
+	FROM alpine:latest
+	RUN apk add --no-cache openjdk21
+	WORKDIR /froom
+	COPY target/server-*.jar /froom/server.jar
+	CMD ["java", "-jar", "server.jar"]
+	EXPOSE 7000
+
+```

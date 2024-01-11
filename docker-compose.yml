@@ -1,15 +1,16 @@
 services:
-  froom-static:
-    build: 
-      context: froom-static
-    labels:
-      - "traefik.http.routers.froom-static.rule=Host(`localhost`) && !PathPrefix(`/api`)"
 
   froom-api:
     build:
       context: froom
     labels:
-    - "traefik.http.routers.froom-api.rule=Host(`localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.froom-api.rule=Host(`localhost`) && PathPrefix(`/api`)"
+
+  froom-static:
+    build: 
+      context: froom-static
+    labels:
+      - "traefik.http.routers.froom-static.rule=Host(`localhost`)"
 
   traefik:
     image: traefik:v2.10

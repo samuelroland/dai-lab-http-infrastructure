@@ -120,3 +120,25 @@ So the test we made is a POST request which creates a new comment :
 
 and then the content itself with the answer from the server :
 ![bruno test image 2](/imgs/bruno2.png)
+
+## Step 4 - Reverse proxy
+```
+sudo docker compose up
+```
+
+```
+[+] Running 3/0
+ ✔ Container infra-labo5-traefik-1       Created                                                                                                                                   0.0s 
+ ✔ Container infra-labo5-froom-api-1     Created                                                                                                                                   0.0s 
+ ✔ Container infra-labo5-froom-static-1  Created                                                                                                                                   0.0s 
+Attaching to infra-labo5-froom-api-1, infra-labo5-froom-static-1, infra-labo5-traefik-1
+```
+
+When we test to visit the 2 websites on `localhost:8000` and then `localhost:8000/api/comments`, we see that routing the expected pages and the live logs show Traefik is doing the routing to both containers.
+
+```
+infra-labo5-froom-static-1  | 172.19.0.3 - - [11/Jan/2024:08:37:12 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
+infra-labo5-froom-static-1  | 172.19.0.3 - - [11/Jan/2024:08:37:42 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
+
+infra-labo5-froom-api-1     | New request GET on /api/comments
+```

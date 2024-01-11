@@ -98,24 +98,23 @@ java -jar target/server-1.0-SNAPSHOT.jar
 ## Step 3 - HTTP API server
 
 We have a GET route on / (the home page) to send a Hello message when arriving on this home page.
-```
-	app.get("/", ctx -> ctx.result(HELLO_MESSAGE));
-
+```java
+app.get("/", ctx -> ctx.result(HELLO_MESSAGE));
 ```
 We implemented all the CRUD operations with the folowing routes :
 
-```
-	app.get("/comments/{id}", commentsController::getOne);
-	app.get("/comments", commentsController::getAll);
-	app.post("/comments", commentsController::create);
-	app.delete("/comments/{id}", commentsController::delete);
-	app.put("/comments/{id}", commentsController::update);
-	
+```java
+app.get("/comments/{id}", commentsController::getOne);
+app.get("/comments", commentsController::getAll);
+app.post("/comments", commentsController::create);
+app.delete("/comments/{id}", commentsController::delete);
+app.put("/comments/{id}", commentsController::update);
 ```
 
 We also tested our implementation with Bruno although we have all the  necessary tests coded directecly into the `CommentsTests.java` file.
 
-So the test we made is a POST request which creates a new comment :
+So the test we made is a POST request which creates a new comment :  
+
 ![bruno test image 1](/imgs/bruno1.png)
 
 and then the content itself with the answer from the server :
@@ -123,12 +122,15 @@ and then the content itself with the answer from the server :
 
 And we also created the Dockerfile for the API server.
 
+```dockerfile
+FROM alpine:latest
+RUN apk add --no-cache openjdk21
+WORKDIR /froom
+COPY target/server-*.jar /froom/server.jar
+CMD ["java", "-jar", "server.jar"]
+EXPOSE 7000
 ```
-	FROM alpine:latest
-	RUN apk add --no-cache openjdk21
-	WORKDIR /froom
-	COPY target/server-*.jar /froom/server.jar
-	CMD ["java", "-jar", "server.jar"]
-	EXPOSE 7000
 
-```
+We also have run tests to be sure that the code is running well. Here are the results :
+
+![tests run](imgs/testsRun.png)

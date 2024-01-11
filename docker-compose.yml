@@ -5,12 +5,16 @@ services:
       context: froom
     labels:
       - "traefik.http.routers.froom-api.rule=Host(`localhost`) && PathPrefix(`/api`)"
+    deploy:
+      replicas: 5
 
   froom-static:
     build: 
       context: froom-static
     labels:
       - "traefik.http.routers.froom-static.rule=Host(`localhost`)"
+    deploy:
+      replicas: 5
 
   traefik:
     image: traefik:v2.10

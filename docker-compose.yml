@@ -5,6 +5,9 @@ services:
       context: froom
     labels:
       - "traefik.http.routers.froom-api.rule=Host(`localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.services.froom-api.loadbalancer.sticky=true"
+      - "traefik.http.services.froom-api.loadbalancer.sticky.cookie.name=StickyCookie"
+      - "traefik.http.services.froom-api.loadbalancer.sticky.cookie.secure=true"
     deploy:
       replicas: 5
 

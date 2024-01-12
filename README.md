@@ -195,3 +195,47 @@ infra-labo5-froom-static-4   infra-labo5-froom-static   "/docker-entrypoint.sh n
 infra-labo5-froom-static-6   infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"  froom-static
 ...
 ```
+
+## Step 6 - sticky sessions
+
+To be able to handle a load balacing with sticky session server, we modified the `docker-compose.yml` as so :
+
+First to activate sticky sessions we included into the docker compose file :
+
+```dockerfile
+- "traefik.http.services.froom-api.loadbalancer.sticky=true"
+```
+
+then we give this cookie a name with the following command :
+
+```dockerfile
+- "traefik.http.services.froom-api.loadbalancer.sticky.cookie.name=StickyCookie"
+```
+
+and we make it secure by adding this command :
+
+```dockerfile
+- "traefik.http.services.froom-api.loadbalancer.sticky.cookie.secure=true"
+```
+
+### Demonstration
+
+We did 9 page refreshes on the API to prove that sticky session is working.
+Then we did 5 page refreshes on the static website to show that Round-Robin is still active and is working.
+
+```
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
+dai-lab-http-infrastructure-froom-static-3  | 172.22.0.2 - - [12/Jan/2024:16:43:14 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
+dai-lab-http-infrastructure-froom-static-4  | 172.22.0.2 - - [12/Jan/2024:16:43:15 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
+dai-lab-http-infrastructure-froom-static-1  | 172.22.0.2 - - [12/Jan/2024:16:43:15 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
+dai-lab-http-infrastructure-froom-static-5  | 172.22.0.2 - - [12/Jan/2024:16:43:15 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
+dai-lab-http-infrastructure-froom-static-2  | 172.22.0.2 - - [12/Jan/2024:16:43:15 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
+```

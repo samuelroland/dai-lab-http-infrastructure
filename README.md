@@ -142,3 +142,56 @@ infra-labo5-froom-static-1  | 172.19.0.3 - - [11/Jan/2024:08:37:42 +0000] "GET /
 
 infra-labo5-froom-api-1     | New request GET on /api/comments
 ```
+
+TODO: continue step 4 documentation !
+
+## Step 5 - Scalability and load-balancing
+To add replicated instances, we just added `deploy.replicas` to 5, for the 2 services
+```yaml
+deploy:
+    replicas: 5
+```
+
+And to change this value dynamically when the infrastructure is already up, here is an example to scale from 5 to 10 froom-static instances:
+```sh
+sudo docker compose up --scale froom-static=10 -d
+```
+
+We see there is now 10 instances running
+
+```
+$ sudo docker compose ps
+NAME                          IMAGE                      COMMAND                                           SERVICE       ...
+...
+infra-labo5-froom-static-1    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-10   infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-11   infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-2    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-4    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-5    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-6    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-7    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-8    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+infra-labo5-froom-static-9    infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"    froom-static  ...
+...
+```
+
+If we only want 3 instances, now we can use the same commands to down scale our infra:
+```sh
+sudo docker compose up --scale froom-static=3 -d
+```
+
+Then we only have 3 static instances:
+```
+$ sudo docker compose ps
+NAME                         IMAGE                      COMMAND                                         SERVICE     
+infra-labo5-froom-api-2      infra-labo5-froom-api      "java -jar server.jar"                          froom-api   
+infra-labo5-froom-api-3      infra-labo5-froom-api      "java -jar server.jar"                          froom-api   
+infra-labo5-froom-api-4      infra-labo5-froom-api      "java -jar server.jar"                          froom-api   
+infra-labo5-froom-api-5      infra-labo5-froom-api      "java -jar server.jar"                          froom-api   
+infra-labo5-froom-api-6      infra-labo5-froom-api      "java -jar server.jar"                          froom-api   
+infra-labo5-froom-static-2   infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"  froom-static
+infra-labo5-froom-static-4   infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"  froom-static
+infra-labo5-froom-static-6   infra-labo5-froom-static   "/docker-entrypoint.sh nginx -g 'daemon off;'"  froom-static
+...
+```

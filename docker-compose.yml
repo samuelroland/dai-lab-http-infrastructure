@@ -8,6 +8,8 @@ services:
       - "traefik.http.services.froom-api.loadbalancer.sticky=true"
       - "traefik.http.services.froom-api.loadbalancer.sticky.cookie.name=StickyCookie"
       - "traefik.http.services.froom-api.loadbalancer.sticky.cookie.secure=true"
+      - "traefik.http.routers.froom-api.tls=true"
+      - "traefik.http.routers.froom-api.entrypoints=websecure"
     deploy:
       replicas: 5
 
@@ -16,6 +18,8 @@ services:
       context: froom-static
     labels:
       - "traefik.http.routers.froom-static.rule=Host(`localhost`)"
+      - "traefik.http.routers.froom-static.tls=true"
+      - "traefik.http.routers.froom-static.entrypoints=websecure"
     deploy:
       replicas: 5
 
@@ -23,7 +27,10 @@ services:
     image: traefik:v2.10
     command: --api.insecure=true --providers.docker
     ports:
-      - "8000:80"
+      - "8000:443"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./ssl:/etc/traefik/certificates
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+

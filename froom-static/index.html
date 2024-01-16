@@ -2,23 +2,38 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Froom !</title>
-	<style>
-		body {
-			font-family: 'Fira Code', 'Courier New', Courier, monospace
-		}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Froom !</title>
+    <style>
+        body {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace
+        }
 
-		h1 {
-			color: rgb(34, 130, 214);
-		}
-	</style>
+        h1 {
+            color: rgb(34, 130, 214);
+        }
+    </style>
 </head>
 
 <body>
-	<h1>Welcome on <em>Froom</em>!</h1>
-	<p>The futuristic non revolutionnary forum for anyone who like jokes.</p>
+    <h1>Welcome on <em>Froom</em>!</h1>
+    <p>The futuristic non revolutionnary forum for anyone who like jokes.</p>
+    <div>
+
+    </div>
+
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <h3>Les supers commentaires</h3>
+    <div x-data="{ comments: [] }"
+        x-init="comments = await (await fetch('https://localhost:8000/api/comments')).json(); console.log(comments)">
+        <template x-for="comment of comments">
+            <div style="margin-bottom: 40px;">
+                On <span x-text="new Date(comment.date).toLocaleString()"></span>
+                <p x-text="comment.content" style="font-style: italic;"></p>
+            </div>
+        </template>
+    </div>
 </body>
 
 </html>

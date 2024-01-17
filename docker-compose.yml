@@ -10,6 +10,7 @@ services:
       - "traefik.http.services.froom-api.loadbalancer.sticky.cookie.secure=true"
       - "traefik.http.routers.froom-api.tls=true"
       - "traefik.http.routers.froom-api.entrypoints=websecure"
+      - io.portainer.accesscontrol.public
     deploy:
       replicas: 5
 
@@ -20,6 +21,7 @@ services:
       - "traefik.http.routers.froom-static.rule=Host(`localhost`)"
       - "traefik.http.routers.froom-static.tls=true"
       - "traefik.http.routers.froom-static.entrypoints=websecure"
+      - io.portainer.accesscontrol.public
     deploy:
       replicas: 5
 
@@ -34,3 +36,9 @@ services:
       - ./ssl:/etc/traefik/certificates
       - ./traefik.yaml:/etc/traefik/traefik.yaml
 
+  portainer:
+    image: portainer/portainer
+    ports:
+      - 9000:9000 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

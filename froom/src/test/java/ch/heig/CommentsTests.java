@@ -52,7 +52,7 @@ public class CommentsTests {
 	@Test
 	public void getOneReturnsOneComment() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.get("/comments/4");
+			var res = client.get("/api/comments/4");
 			Comment givenComment = parseAs(res.body().string());
 			assertEquals(200, res.code());
 			assertEquals("L'eau, dans 20-30 ans y'en aura plus", givenComment.content);
@@ -64,7 +64,7 @@ public class CommentsTests {
 	@Test
 	public void getOneFailsOnNonExistantComment() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.get("/comments/420000");
+			var res = client.get("/api/comments/420000");
 			assertEquals(404, res.code());
 		});
 	}
@@ -72,7 +72,7 @@ public class CommentsTests {
 	@Test
 	public void getOneFailsWithNonValidId() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.get("/comments/bonjour");
+			var res = client.get("/api/comments/bonjour");
 			assertEquals(404, res.code());
 		});
 	}
@@ -80,7 +80,7 @@ public class CommentsTests {
 	@Test
 	public void getAllReturnsAllComment() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.get("/comments");
+			var res = client.get("/api/comments");
 			Comment[] comments = parseAsArray(res.body().string());
 			assertEquals(200, res.code());
 			assertEquals(4, comments.length);
@@ -91,12 +91,12 @@ public class CommentsTests {
 	@Test
 	public void getAllWorksWithoutElements() {
 		JavalinTest.test(app, (server, client) -> {
-			client.delete("/comments/1");
-			client.delete("/comments/2");
-			client.delete("/comments/3");
-			client.delete("/comments/4");
+			client.delete("/api/comments/1");
+			client.delete("/api/comments/2");
+			client.delete("/api/comments/3");
+			client.delete("/api/comments/4");
 
-			var res = client.get("/comments/");
+			var res = client.get("/api/comments/");
 			assertEquals(200, res.code());
 			assertEquals("[]", res.body().string());
 		});
@@ -106,7 +106,7 @@ public class CommentsTests {
 	public void postCreateComment() {
 		JavalinTest.test(app, (server, client) -> {
 			String body = "{\"content\": \"Hello this is a test\", \"parent_id\": null}";
-			var res = client.post("/comments", body);
+			var res = client.post("/api/comments", body);
 			Comment createdComment = parseAs(res.body().string());
 			assertEquals(201, res.code());
 			assertEquals("Hello this is a test", createdComment.content);
@@ -120,9 +120,9 @@ public class CommentsTests {
 	@Test
 	public void deleteComment() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.delete("/comments/3");
+			var res = client.delete("/api/comments/3");
 			assertEquals(204, res.code());
-			var res2 = client.get("/comments/3");
+			var res2 = client.get("/api/comments/3");
 			assertEquals(404, res2.code());
 		});
 	}
@@ -131,7 +131,7 @@ public class CommentsTests {
 	public void updateComment() {
 		JavalinTest.test(app, (server, client) -> {
 			String body = "{\"content\": \"Hello this is an other test\", \"parent_id\": 3}";
-			var res = client.put("/comments/4", body);
+			var res = client.put("/api/comments/4", body);
 			assertEquals(200, res.code());
 			Comment updatedComment = parseAs(res.body().string());
 			assertEquals("Hello this is an other test", updatedComment.content);
@@ -144,7 +144,7 @@ public class CommentsTests {
 	@Test
 	public void updateNonExistantCommentFails() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.put("/comments/420000");
+			var res = client.put("/api/comments/420000");
 			assertEquals(404, res.code());
 		});
 	}
@@ -152,7 +152,7 @@ public class CommentsTests {
 	@Test
 	public void deleteNonExistantCommentFails() {
 		JavalinTest.test(app, (server, client) -> {
-			var res = client.delete("/comments/420000");
+			var res = client.delete("/api/comments/420000");
 			assertEquals(404, res.code());
 		});
 	}

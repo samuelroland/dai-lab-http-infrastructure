@@ -85,40 +85,39 @@ sudo docker compose build
  => => naming to docker.io/library/dai-lab-http-infrastructure-froom-static 
 ```
 
-## Javalin API
 
+## Step 3 - HTTP API server
+To package our Javalin server
 ```sh
 mvn package
 ```
 
+To run it
 ```sh
 java -jar target/server-1.0-SNAPSHOT.jar
 ```
 
-## Step 3 - HTTP API server
-
 We have a GET route on / (the inital arriving page) to send a Hello message when arriving on this home page.
-```
-	app.get("/", ctx -> ctx.result(HELLO_MESSAGE));
-
-```
-and then the routes for all the comments with the CRUD operations : Create, Read, Update, Delete.
-
-```
-	app.get("/comments/{id}", commentsController::getOne);
-	app.get("/comments", commentsController::getAll);
-	app.post("/comments", commentsController::create);
-	app.delete("/comments/{id}", commentsController::delete);
-	app.put("/comments/{id}", commentsController::update);
-	
+```java
+app.get("/", ctx -> ctx.result(HELLO_MESSAGE));
 ```
 
-We also tested our implementation with Bruno although we have all the tests necessary coded directecly into the `CommentsTests.java` file.
+and then the routes for all the CRUD operations related to comments: Create (One and All), Read, Update, Delete.
 
-So the test we made is a POST request which creates a new comment :
+```java
+app.get("/comments/{id}", commentsController::getOne);
+app.get("/comments", commentsController::getAll);
+app.post("/comments", commentsController::create);
+app.delete("/comments/{id}", commentsController::delete);
+app.put("/comments/{id}", commentsController::update);
+```
+
+We wrote integration tests to make sure our implementation really works (see the `CommentsTests.java`) and we tried a few routes with Bruno for easier visualisation.
+
+In this example, we made a POST request to create a new comment :
 ![bruno test image 1](/imgs/bruno1.png)
 
-and then the content itself with the answer from the server :
+and then we see the expected answer from the server :
 ![bruno test image 2](/imgs/bruno2.png)
 
 ## Step 4 - Reverse proxy
@@ -220,8 +219,8 @@ and we make it secure by adding this command :
 
 ### Demonstration
 
-We did 9 page refreshes on the API to prove that sticky session is working.
-Then we did 5 page refreshes on the static website to show that Round-Robin is still active and is working.
+We did 9 page refreshes on the API to prove that sticky session is working (in the example we see they are all routed to the first container).
+Then we did 5 page refreshes on the static website to show that Round-Robin is still active and is working. (In the example we see each replica one after the )
 
 ```
 dai-lab-http-infrastructure-froom-api-1     | New request GET on /api/comments
@@ -239,3 +238,35 @@ dai-lab-http-infrastructure-froom-static-1  | 172.22.0.2 - - [12/Jan/2024:16:43:
 dai-lab-http-infrastructure-froom-static-5  | 172.22.0.2 - - [12/Jan/2024:16:43:15 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
 dai-lab-http-infrastructure-froom-static-2  | 172.22.0.2 - - [12/Jan/2024:16:43:15 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0"
 ```
+
+## Step 7 - HTTPs
+
+
+## Step 8 - Docker GUI
+We found Portainer, a Docker GUI that can help manages Docker instances.
+
+We configured it like this:
+```yml
+  portainer:
+    image: portainer/portainer
+    ports:
+      - 9000:9000 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+We tried to add another label `io.portainer.accesscontrol.public` to our 2 services to try to fix the issue of `This stack was created outside of Portainer. Control over this stack is limited.` but actually this doesn't limit us to duplicate instances, remove them, rename and pause, so maybe this is the state that we were expected to reach.
+
+![portainer-stack-details.png](imgs/portainer-stack-details.png)
+
+![portainer-instance-details.png](imgs/portainer-instance-details.png)
+
+## Step 9
+
+We just wrote a bunch of vanilla Javascript and AlpineJS and are now using our API. Here is a demo of our list of comments periodically loading each 5 seconds.
+
+![using-api-1.png](imgs/using-api-1.png)
+
+We can even create a new comment and it appears on next reload.
+![using-api-2.png](imgs/using-api-2.png)
+

@@ -121,10 +121,44 @@ and then we see the expected answer from the server :
 ![bruno test image 2](/imgs/bruno2.png)
 
 ## Step 4 - Reverse proxy
+
+We had to prefix our API routes with `/api`.
+
+We added a label to indicate to Traefik that the rule to route the traffic to a `froom-static` container is that the host has to be `localhost`. We had to put the service after the `froom-api` because the match criterion has less conditions.
+```yml
+  froom-static:
+    build: 
+      context: froom-static
+    labels:
+      - "traefik.http.routers.froom-static.rule=Host(`localhost`)" # added this
+```
+
+Same for `froom-api` but with the additionnal condition that the HTTP request path has to be prefixed with `/api`
+```yml
+  froom-api:
+    build:
+      context: froom
+    labels:
+      - "traefik.http.routers.froom-api.rule=Host(`localhost`) && PathPrefix(`/api`)" # added this
+```
+
+To configure traefik we mostly copy pasted what was given in the official documentation
+```yml
+  traefik:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "8000:80" # this has changed later in step 7
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+In conclucions, when running our infrastructure with
 ```
 sudo docker compose up
 ```
-
+we now can see that traefik container running
 ```
 [+] Running 3/0
  ✔ Container infra-labo5-traefik-1       Created                                                                                                                                   0.0s 
@@ -142,7 +176,9 @@ infra-labo5-froom-static-1  | 172.19.0.3 - - [11/Jan/2024:08:37:42 +0000] "GET /
 infra-labo5-froom-api-1     | New request GET on /api/comments
 ```
 
-TODO: continue step 4 documentation !
+To access traefik dashboard to debug or see details about routing configuration, you just need to visit `localhost:8080` in your browser.
+
+![traefik-dashboard.png](imgs/traefik-dashboard.png)
 
 ## Step 5 - Scalability and load-balancing
 To add replicated instances, we just added `deploy.replicas` to 5, for the 2 services
@@ -220,6 +256,7 @@ and we make it secure by adding this command :
 ### Demonstration
 
 We did 9 page refreshes on the API to prove that sticky session is working (in the example we see they are all routed to the first container).
+
 Then we did 5 page refreshes on the static website to show that Round-Robin is still active and is working. (In the example we see each replica one after the )
 
 ```
@@ -240,7 +277,52 @@ dai-lab-http-infrastructure-froom-static-2  | 172.22.0.2 - - [12/Jan/2024:16:43:
 ```
 
 ## Step 7 - HTTPs
+We created a folder `ssl` and commited our certs for the demo.
 
+We completed our `docker-compose.yml` on the 2 services to enable TLS and use a Traefik entrypoint supporting HTTPS
+```yml
+      - "traefik.http.routers.froom-api.tls=true"
+      - "traefik.http.routers.froom-api.entrypoints=websecure"
+```
+
+On the traefik service we had to add 2 volumes to mount the ssl certificates in the expected folder and the traefik configuration.
+```yml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./ssl:/etc/traefik/certificates
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+```
+
+We had to configure Traefik in `traefik.yml` to indicate we are using Docker, to create the 2 entry points on ports 80 and 443. We added the path to certificates as mounted with volumes.
+```yml
+providers:
+  docker: {}
+entryPoints:
+  web:
+    address: ":80"
+
+  websecure:
+    address: ":443"
+
+tls:
+  certificates:
+    - certFile: /etc/traefik/certificates/cert.pem
+      keyFile: /etc/traefik/certificates/key.pem
+
+api:
+  dashboard: true
+  insecure: true
+```
+
+We had to change the port mapping for traefik
+```yml
+  traefik:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "8000:443"  # changed this from 8000:80 to 8000:443
+      - "8080:8080"
+```
 
 ## Step 8 - Docker GUI
 We found Portainer, a Docker GUI that can help manages Docker instances.
